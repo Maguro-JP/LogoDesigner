@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>LogoDesigner — ロゴデザイナー</title>
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: system-ui, sans-serif; color: #111827; background: #f3f4f6; }
+  header { padding: 16px 24px; background: #111827; color: #fff; }
+  header h1 { margin: 0; font-size: 20px; }
+  header p { margin: 4px 0 0; color: #d1d5db; font-size: 13px; }
+  main { display: flex; gap: 16px; padding: 16px; max-width: 1100px; margin: 0 auto; }
+  aside { width: 340px; flex-shrink: 0; background: #fff; border: 1px solid #e5e7eb; border-radius: 8px; padding: 16px; }
+  section.preview { flex: 1; background: #fff; border: 1px solid #e5e7eb; border-radius: 8px; padding: 16px; min-width: 0; }
+  label { display: block; font-size: 13px; font-weight: 600; margin: 12px 0 4px; }
+  input[type="text"], select { width: 100%; padding: 8px; font-size: 14px; border: 1px solid #d1d5db; border-radius: 6px; }
+  input[type="color"] { width: 100%; height: 36px; padding: 2px; border: 1px solid #d1d5db; border-radius: 6px; background: #fff; }
+  .row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .check { display: flex; align-items: center; gap: 8px; margin-top: 8px; font-size: 13px; font-weight: 400; }
+  .presets { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+  button { padding: 8px 12px; font-size: 14px; border: 1px solid #d1d5db; border-radius: 6px; background: #fff; cursor: pointer; }
+  button.primary { background: #2563eb; color: #fff; border-color: #2563eb; }
+  button:hover { filter: brightness(0.96); }
+  .actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
+  #preview { display: flex; justify-content: center; align-items: center; min-height: 320px; background: repeating-conic-gradient(#f9fafb 0% 25%, #fff 0% 50%) 0 0 / 20px 20px; border: 1px solid #e5e7eb; border-radius: 8px; padding: 16px; overflow: auto; }
+  #preview svg { max-width: 100%; height: auto; }
+  #status { margin-top: 12px; font-size: 13px; color: #374151; min-height: 1.2em; }
+  .note { margin-top: 16px; font-size: 13px; color: #4b5563; background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 6px; padding: 12px; }
+  .note h2 { font-size: 14px; margin: 0 0 8px; }
+  .note ul { margin: 0; padding-left: 20px; }
+  @media (max-width: 760px) { main { flex-direction: column; } aside { width: auto; } }
+</style>
+</head>
+<body>
+<header>
+  <h1>LogoDesigner</h1>
+  <p>ブランド名と形・色を選ぶだけの、シンプルなロゴ作成ツールです。</p>
+</header>
+<main>
+  <aside aria-label="設定パネル">
+    <label for="brand">ブランド名（必須・30文字以内）</label>
+    <input type="text" id="brand" maxlength="30" value="Maguro" placeholder="例：Maguro">
+
+    <label for="tagline">タグライン（任意・60文字以内）</label>
+    <input type="text" id="tagline" maxlength="60" value="" placeholder="例：つくる、たのしむ。">
+
+    <div class="row">
+      <div>
+        <label for="shape">形</label>
+        <select id="shape">
+          <option value="circle">円</option>
+          <option value="rounded-square">角丸四角</option>
+          <option value="hexagon">六角形</option>
+          <option value="shield">盾</option>
+          <option value="triangle">三角形</option>
+          <option value="badge">バッジ</option>
+        </select>
+      </div>
+      <div>
+        <label for="style">スタイル</label>
+        <select id="style">
+          <option value="monogram">モノグラム</option>
+          <option value="badge">バッジ</option>
+          <option value="minimal">ミニマル</option>
+          <option value="geometric">幾何学</option>
+        </select>
+      </div>
+    </div>
+
+    <label for="layout">レイアウト</label>
+    <select id="layout">
+      <option value="icon-top">アイコン上・文字下</option>
+      <option value="icon-left">アイコン左・文字右</option>
+      <option value="icon-only">アイコンのみ</option>
+      <option value="text-only">文字のみ</option>
+    </select>
+
+    <div class="row">
+      <div>
+        <label for="primary">メイン色</label>
+        <input type="color" id="primary" value="#2563eb">
+      </div>
+      <div>
+        <label for="accent">アクセント色</label>
+        <input type="color" id="accent" value="#f59e0b">
+      </div>
+    </div>
+    <div class="row">
+      <div>
+        <label for="background">背景色</label>
+        <input type="color" id="background" value="#ffffff">
+      </div>
+      <div>
+        <label for="textColor">文字色</label>
+        <input type="color" id="textColor" value="#111827">
+      </div>
+    </div>
+    <label class="check"><input type="checkbox" id="transparentBg"> 背景を透明にする</label>
+
+    <label for="size">サイズ（px）</label>
+    <select id="size">
+      <option value="256">256</option>
+      <option value="512" selected>512</option>
+      <option value="1024">1024</option>
+    </select>
+
+    <label>プリセット</label>
+    <div class="presets">
+      <button type="button" data-preset="monogram">モノグラム</button>
+      <button type="button" data-preset="badge">バッジ</button>
+      <button type="button" data-preset="minimal">ミニマル</button>
+      <button type="button" data-preset="geometric">幾何学</button>
+    </div>
+
+    <div class="actions">
+      <button type="button" class="primary" id="saveSvg">SVG保存</button>
+      <button type="button" id="exportPng">PNG出力</button>
+      <button type="button" id="saveJson">JSON保存</button>
+      <button type="button" id="loadJsonBtn">JSON読み込み</button>
+      <button type="button" id="copySvg">SVGをコピー</button>
+      <input type="file" id="loadJson" accept="application/json,.json" hidden>
+    </div>
+  </aside>
+
+  <section class="preview" aria-label="プレビュー">
+    <div id="preview"></div>
+    <p id="status" role="status">プレビューを更新しました。</p>
+    <div class="note">
+      <h2>現在の範囲</h2>
+      <ul>
+        <li>AI による画像生成はできません。形・色・文字の組み合わせでロゴを作ります。</li>
+        <li>フォントは埋め込みません。SVG は system-ui など環境のフォントで表示されます。</li>
+        <li>サーバー側の PNG 出力はありません。PNG はブラウザで SVG を描画して作ります。</li>
+        <li>使えるのは画面の形・スタイル・レイアウトと、ブランド名・タグラインだけです。</li>
+      </ul>
+    </div>
+  </section>
+</main>
+
+<script>
+"use strict";
+// logo_core.py と同じ仕様（logodesigner.logo.v1）を、小さく JS で再現する。
+// 幾何学の計算は Python 版と同じ式を使っている。
+const FORMAT = "logodesigner.logo.v1";
+const STORAGE_KEY = "logodesigner.v1";
+const DEFAULTS = {
+  format: FORMAT, brand: "Maguro", tagline: "", shape: "circle",
+  style: "monogram", primary: "#2563eb", accent: "#f59e0b",
+  text_color: "#111827", background: "#ffffff", layout: "icon-top", size: 512
+};
+
+function escapeXml(s) {
+  return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+}
+function num(v) {
+  const r = Math.round(v * 100) / 100;
+  return Number.isInteger(r) ? String(r) : String(r);
+}
+function initials(brand) {
+  const words = String(brand).trim().split(/\s+/);
+  if (!words.length || !words[0]) return "";
+  const first = words[0][0];
+  if (!/[A-Za-z]/.test(first)) return first;
+  const letters = [];
+  if (words.length >= 2) {
+    for (const w of words.slice(0, 2)) {
+      const m = w.match(/[A-Za-z]/);
+      if (m) letters.push(m[0].toUpperCase());
+    }
+  } else {
+    for (const ch of words[0]) {
+      if (/[A-Za-z]/.test(ch)) letters.push(ch.toUpperCase());
+      if (letters.length >= 2) break;
+    }
+  }
+  return letters.join("") || first.toUpperCase();
+}
+function shapePoints(shape, cx, cy, r) {
+  if (shape === "hexagon") {
+    const pts = [];
+    for (let i = 0; i < 6; i++) {
+      const a = (-90 + i * 60) * Math.PI / 180;
+      pts.push([cx + r * Math.cos(a), cy + r * Math.sin(a)]);
+    }
+    return pts;
+  }
+  if (shape === "triangle") {
+    return [[cx, cy - r], [cx - r * 0.9, cy + r * 0.8], [cx + r * 0.9, cy + r * 0.8]];
+  }
+  return [];
+}
+function shieldPath(cx, cy, r) {
+  return "M " + num(cx) + " " + num(cy - r) +
+    " L " + num(cx + r) + " " + num(cy - r * 0.6) +
+    " L " + num(cx + r) + " " + num(cy + r * 0.1) +
+    " Q " + num(cx + r) + " " + num(cy + r * 0.75) + " " + num(cx) + " " + num(cy + r) +
+    " Q " + num(cx - r) + " " + num(cy + r * 0.75) + " " + num(cx - r) + " " + num(cy + r * 0.1) +
+    " L " + num(cx - r) + " " + num(cy - r * 0.6) + " Z";
+}
+function shapeElements(shape, cx, cy, r, style, primary, accent) {
+  let fill, stroke, sw;
+  if (style === "monogram") { fill = primary; stroke = "none"; sw = 0; }
+  else if (style === "badge") { fill = primary; stroke = accent; sw = r * 0.08; }
+  else if (style === "minimal") { fill = "none"; stroke = primary; sw = r * 0.08; }
+  else { fill = accent; stroke = "none"; sw = 0; }
+  const attrs = stroke === "none"
+    ? 'fill="' + fill + '"'
+    : 'fill="' + fill + '" stroke="' + stroke + '" stroke-width="' + num(sw) + '"';
+  if (shape === "circle") {
+    return ['<circle cx="' + num(cx) + '" cy="' + num(cy) + '" r="' + num(r) + '" ' + attrs + '/>'];
+  }
+  if (shape === "rounded-square") {
+    return ['<rect x="' + num(cx - r) + '" y="' + num(cy - r) + '" width="' + num(2 * r) +
+      '" height="' + num(2 * r) + '" rx="' + num(r * 0.25) + '" ' + attrs + '/>'];
+  }
+  if (shape === "hexagon" || shape === "triangle") {
+    const pts = shapePoints(shape, cx, cy, r).map(p => num(p[0]) + "," + num(p[1])).join(" ");
+    return ['<polygon points="' + pts + '" ' + attrs + '/>'];
+  }
+  if (shape === "shield") {
+    return ['<path d="' + shieldPath(cx, cy, r) + '" ' + attrs + '/>'];
+  }
+  if (shape === "badge") {
+    return [
+      '<circle cx="' + num(cx) + '" cy="' + num(cy) + '" r="' + num(r) + '" ' + attrs + '/>',
+      '<circle cx="' + num(cx) + '" cy="' + num(cy) + '" r="' + num(r * 0.78) +
+        '" fill="none" stroke="' + accent + '" stroke-width="' + num(r * 0.05) + '"/>'
+    ];
+  }
+  return [];
+}
+function initialsText(cx, cy, r, init, spec) {
+  const fill = spec.style === "minimal" ? spec.primary : "#ffffff";
+  const fs = init.length === 1 ? r * 0.9 : r * 0.7;
+  return '<text x="' + num(cx) + '" y="' + num(cy) + '" text-anchor="middle" dominant-baseline="central" ' +
+    'font-family="system-ui, sans-serif" font-size="' + num(fs) + '" font-weight="700" fill="' + fill + '">' +
+    escapeXml(init) + '</text>';
+}
+function buildSvg(spec) {
+  const size = spec.size;
+  const brand = escapeXml(spec.brand);
+  const tagline = escapeXml(spec.tagline);
+  const init = initials(spec.brand);
+  const parts = ['<svg xmlns="http://www.w3.org/2000/svg" width="' + size + '" height="' + size +
+    '" viewBox="0 0 ' + size + ' ' + size + '" role="img">'];
+  if (spec.background !== "transparent") {
+    parts.push('<rect width="' + size + '" height="' + size + '" fill="' + spec.background + '"/>');
+  }
+  let cx, cy, r;
+  if (spec.layout === "icon-top") {
+    cx = size / 2; cy = size * 0.28; r = size * 0.22;
+    parts.push(...shapeElements(spec.shape, cx, cy, r, spec.style, spec.primary, spec.accent));
+    parts.push(initialsText(cx, cy, r, init, spec));
+    parts.push('<text x="' + num(size / 2) + '" y="' + num(size * 0.64) + '" text-anchor="middle" font-family="system-ui, sans-serif" font-size="' + num(size * 0.10) + '" font-weight="700" fill="' + spec.text_color + '">' + brand + '</text>');
+    if (tagline) parts.push('<text x="' + num(size / 2) + '" y="' + num(size * 0.75) + '" text-anchor="middle" font-family="system-ui, sans-serif" font-size="' + num(size * 0.05) + '" fill="' + spec.text_color + '" opacity="0.7">' + tagline + '</text>');
+  } else if (spec.layout === "icon-left") {
+    cx = size * 0.22; cy = size / 2; r = size * 0.18;
+    parts.push(...shapeElements(spec.shape, cx, cy, r, spec.style, spec.primary, spec.accent));
+    parts.push(initialsText(cx, cy, r, init, spec));
+    const tx = size * 0.45;
+    parts.push('<text x="' + num(tx) + '" y="' + num(size * 0.48) + '" font-family="system-ui, sans-serif" font-size="' + num(size * 0.11) + '" font-weight="700" fill="' + spec.text_color + '">' + brand + '</text>');
+    if (tagline) parts.push('<text x="' + num(tx) + '" y="' + num(size * 0.61) + '" font-family="system-ui, sans-serif" font-size="' + num(size * 0.05) + '" fill="' + spec.text_color + '" opacity="0.7">' + tagline + '</text>');
+  } else if (spec.layout === "icon-only") {
+    cx = size / 2; cy = size / 2; r = size * 0.32;
+    parts.push(...shapeElements(spec.shape, cx, cy, r, spec.style, spec.primary, spec.accent));
+    parts.push(initialsText(cx, cy, r, init, spec));
+  } else { // text-only
+    parts.push('<text x="' + num(size / 2) + '" y="' + num(size * 0.48) + '" text-anchor="middle" font-family="system-ui, sans-serif" font-size="' + num(size * 0.13) + '" font-weight="700" fill="' + spec.text_color + '">' + brand + '</text>');
+    if (tagline) parts.push('<text x="' + num(size / 2) + '" y="' + num(size * 0.61) + '" text-anchor="middle" font-family="system-ui, sans-serif" font-size="' + num(size * 0.05) + '" fill="' + spec.text_color + '" opacity="0.7">' + tagline + '</text>');
+  }
+  if (spec.layout !== "text-only" && spec.style === "geometric") {
+    if (spec.layout === "icon-top") { cx = size / 2; cy = size * 0.28; r = size * 0.22; }
+    else if (spec.layout === "icon-left") { cx = size * 0.22; cy = size / 2; r = size * 0.18; }
+    else { cx = size / 2; cy = size / 2; r = size * 0.32; }
+    parts.push('<circle cx="' + num(cx + r * 0.55) + '" cy="' + num(cy - r * 0.55) + '" r="' + num(r * 0.16) + '" fill="' + spec.primary + '"/>');
+  }
+  parts.push("</svg>");
+  return parts.join("");
+}
+
+const $ = id => document.getElementById(id);
+const statusEl = $("status");
+function setStatus(msg) { statusEl.textContent = msg; }
+
+function collectSpec() {
+  return {
+    format: FORMAT,
+    brand: $("brand").value.trim(),
+    tagline: $("tagline").value,
+    shape: $("shape").value,
+    style: $("style").value,
+    primary: $("primary").value,
+    accent: $("accent").value,
+    text_color: $("textColor").value,
+    background: $("transparentBg").checked ? "transparent" : $("background").value,
+    layout: $("layout").value,
+    size: parseInt($("size").value, 10)
+  };
+}
+function applySpec(spec) {
+  $("brand").value = spec.brand || "";
+  $("tagline").value = spec.tagline || "";
+  $("shape").value = spec.shape || "circle";
+  $("style").value = spec.style || "monogram";
+  $("layout").value = spec.layout || "icon-top";
+  $("primary").value = spec.primary || "#2563eb";
+  $("accent").value = spec.accent || "#f59e0b";
+  $("textColor").value = spec.text_color || "#111827";
+  $("transparentBg").checked = spec.background === "transparent";
+  if (spec.background && spec.background !== "transparent") $("background").value = spec.background;
+  $("size").value = String(spec.size || 512);
+  $("background").disabled = $("transparentBg").checked;
+}
+function update() {
+  const spec = collectSpec();
+  if (!spec.brand) { setStatus("ブランド名を入力してください。"); return; }
+  if (spec.brand.length > 30) { setStatus("ブランド名は30文字以内にしてください。"); return; }
+  if (spec.tagline.length > 60) { setStatus("タグラインは60文字以内にしてください。"); return; }
+  try {
+    $("preview").innerHTML = buildSvg(spec);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(spec));
+    setStatus("プレビューを更新しました。");
+  } catch (e) {
+    setStatus("プレビューを作れませんでした: " + e.message);
+  }
+}
+function download(blob, filename) {
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+}
+
+const PRESETS = {
+  monogram: { style: "monogram", shape: "circle", primary: "#2563eb", accent: "#f59e0b" },
+  badge: { style: "badge", shape: "badge", primary: "#1e3a5f", accent: "#f59e0b" },
+  minimal: { style: "minimal", shape: "rounded-square", primary: "#111827", accent: "#6b7280" },
+  geometric: { style: "geometric", shape: "hexagon", primary: "#2563eb", accent: "#22c55e" }
+};
+document.querySelectorAll("[data-preset]").forEach(btn => {
+  btn.addEventListener("click", () => {
+    const p = PRESETS[btn.dataset.preset];
+    $("style").value = p.style;
+    $("shape").value = p.shape;
+    $("primary").value = p.primary;
+    $("accent").value = p.accent;
+    update();
+    setStatus("プリセット「" + btn.textContent + "」を適用しました。");
+  });
+});
+
+$("saveSvg").addEventListener("click", async () => {
+  const spec = collectSpec();
+  if (!spec.brand) { setStatus("ブランド名を入力してください。"); return; }
+  try {
+    const res = await fetch("/api/logo?format=svg", {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(spec)
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.error || ("サーバーエラー: " + res.status));
+    }
+    download(await res.blob(), "logo.svg");
+    setStatus("SVG をサーバーから保存しました。");
+  } catch (e) {
+    // サーバーが動いていない場合は、ブラウザ内で作った SVG で保存する。
+    download(new Blob([buildSvg(spec)], { type: "image/svg+xml" }), "logo.svg");
+    setStatus("サーバーに接続できなかったため、ブラウザ内で作った SVG を保存しました。");
+  }
+});
+
+$("exportPng").addEventListener("click", () => {
+  const spec = collectSpec();
+  if (!spec.brand) { setStatus("ブランド名を入力してください。"); return; }
+  const svg = buildSvg(spec);
+  const url = URL.createObjectURL(new Blob([svg], { type: "image/svg+xml;charset=utf-8" }));
+  const img = new Image();
+  img.onload = () => {
+    const canvas = document.createElement("canvas");
+    canvas.width = spec.size; canvas.height = spec.size;
+    const ctx = canvas.getContext("2d");
+    ctx.drawImage(img, 0, 0, spec.size, spec.size);
+    URL.revokeObjectURL(url);
+    canvas.toBlob(blob => {
+      if (blob) { download(blob, "logo.png"); setStatus("PNG を出力しました。"); }
+      else setStatus("PNG を作れませんでした。");
+    }, "image/png");
+  };
+  img.onerror = () => { URL.revokeObjectURL(url); setStatus("PNG を作れませんでした。"); };
+  img.src = url;
+});
+
+$("saveJson").addEventListener("click", () => {
+  const spec = collectSpec();
+  download(new Blob([JSON.stringify(spec, null, 2)], { type: "application/json" }), "logo.json");
+  setStatus("JSON を保存しました。");
+});
+$("loadJsonBtn").addEventListener("click", () => $("loadJson").click());
+$("loadJson").addEventListener("change", async (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+  try {
+    const spec = JSON.parse(await file.text());
+    if (spec.format && spec.format !== FORMAT) throw new Error("format が logodesigner.logo.v1 ではありません");
+    applySpec(Object.assign({}, DEFAULTS, spec));
+    update();
+    setStatus("JSON を読み込みました。");
+  } catch (err) {
+    setStatus("JSON を読み込めませんでした: " + err.message);
+  }
+  e.target.value = "";
+});
+
+$("copySvg").addEventListener("click", async () => {
+  const spec = collectSpec();
+  if (!spec.brand) { setStatus("ブランド名を入力してください。"); return; }
+  try {
+    await navigator.clipboard.writeText(buildSvg(spec));
+    setStatus("SVG をコピーしました。");
+  } catch (e) {
+    setStatus("コピーできませんでした。");
+  }
+});
+
+["brand", "tagline", "shape", "style", "layout", "primary", "accent", "background", "textColor", "transparentBg", "size"]
+  .forEach(id => $(id).addEventListener("input", update));
+$("transparentBg").addEventListener("change", () => {
+  $("background").disabled = $("transparentBg").checked;
+  update();
+});
+
+// 保存済みの設定があれば復元する（FashionDesigner と同じ localStorage 方式）。
+try {
+  const saved = localStorage.getItem(STORAGE_KEY);
+  if (saved) applySpec(Object.assign({}, DEFAULTS, JSON.parse(saved)));
+} catch (e) { /* 保存データが壊れていても既定値で起動する */ }
+update();
+</script>
+</body>
+</html>
