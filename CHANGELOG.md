@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## v1.1.0 — 2026-11-27
+
+- AtelIer の拡張を追加（`atelier_extension/`）。AtelIer の拡張の置き場に入れると、「ロゴデザイン」のメニューからロゴを作るダイアログが開き、プレビューを見ながら SVG / PNG で保存できる。生成は `logo_core.py` をそのまま使う。
+- `atelier_extension/install.ps1` を追加：拡張一式と `logo_core.py` を `C:\ProgramData\AtelIer\extensions\LogoDesigner\` へ入れる。
+- `test_extension.py` を追加：拡張の形、ダイアログの生成、本体の置き場読み込み（load_dropins）での登録のテスト。
+
 ## v1.0.0 — 2026-11-24
 
 - LogoDesigner の最初のリリース。

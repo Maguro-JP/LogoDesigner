@@ -13,6 +13,16 @@
 - プリセット（モノグラム / バッジ / ミニマル / 幾何学）をワンクリックで適用する
 - プレビューを見ながら SVG・PNG・JSON を保存する。設定はブラウザの localStorage に保存される
 
+## AtelIer の拡張として使う
+
+AtelIer の拡張としても使えます。PowerShell で次を実行すると、拡張の置き場（`C:\ProgramData\AtelIer\extensions\LogoDesigner\`）へ入ります。
+
+```powershell
+.\atelier_extension\install.ps1
+```
+
+AtelIer を起動すると「ロゴデザイン」のメニューが出て、ロゴを作るダイアログでプレビューを見ながら SVG / PNG で保存できます。
+
 ## 起動方法
 
 Python 3.10 以上が必要です。追加のパッケージは不要です（標準ライブラリのみ）。
